@@ -1,5 +1,5 @@
 {
-    "name": "ltsteam/rdkafka",
+    "name": "elliesl/laravel-rdkafka",
     "description": "kafka for laravel5, based on php-rdkafka",
     "license": "MIT",
     "require": {
