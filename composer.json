@@ -1,0 +1,25 @@
+{
+    "name": "ltsteam/rdkafka",
+    "description": "kafka for laravel5, based on php-rdkafka",
+    "license": "MIT",
+    "require": {
+        "php": "^7.0",
+        "illuminate/support": "~5.4|~5.5"
+    },
+    "authors": [
+        {
+            "name": "ellis",
+            "email": "nothing@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RdKafka\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
