@@ -6,7 +6,6 @@ use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Queue\Queue;
 use LaravelAliYunKafka\KafkaConsumer;
 use LaravelAliYunKafka\KafKaProducer;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class KafkaQueue extends Queue implements QueueContract
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Rdkafka;
+namespace LaravelAliYunKafka;
 
 use Illuminate\Console\Command;
 

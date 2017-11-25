@@ -1,6 +1,7 @@
 {
-    "name": "elliesl/laravel-rdkafka",
+    "name": "elliesl/laravel-aliyun-rdkafka",
     "description": "aliyun kafka for laravel5, based on php-rdkafka",
+    "keywords": ["laravel kafka", "laravel aliyun kafka", "aliyun laravel kafka"],
     "license": "MIT",
     "require": {
         "php": "^7.0",
@@ -15,7 +16,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "RdKafka\\": "src/"
+            "LaravelAliYunKafka\\": "src/"
         }
     },
     "extra": {
