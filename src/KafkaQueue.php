@@ -1,11 +1,11 @@
 <?php
-namespace Rdkafka;
+namespace LaravelAliYunKafka;
 
-use Rdkafka\Jobs\KafkaJob;
+use LaravelAliYunKafka\Jobs\KafkaJob;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Queue\Queue;
-use Rdkafka\KafkaConsumer;
-use Rdkafka\KafKaProducer;
+use LaravelAliYunKafka\KafkaConsumer;
+use LaravelAliYunKafka\KafKaProducer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class KafkaQueue extends Queue implements QueueContract
@@ -32,6 +32,10 @@ class KafkaQueue extends Queue implements QueueContract
      */
     protected $default;
 
+    protected $key;
+
+    protected $randomId;
+
     public function __construct(array $config, KafKaProducer $producer, KafkaConsumer $consumer, $default)
     {
         $this->producer = $producer;
@@ -41,9 +45,15 @@ class KafkaQueue extends Queue implements QueueContract
         $this->consumer = $consumer;
     }
 
+
+    /**
+     * @param null $queue
+     * @return int
+     */
     public function size($queue = null)
     {
-        // The kafka does not support size
+        // kafka 不带这个玩意
+        return 1;
     }
 
 
@@ -53,11 +63,11 @@ class KafkaQueue extends Queue implements QueueContract
      * @param object|string $job
      * @param string $data
      * @param null $queue
-     * @return void
+     * @return mixed
      */
     public function push($job, $data = '', $queue = null)
     {
-        $this->producer->produce($this->createPayload($job, $data), $queue, $this->getRandomId());
+        return $this->pushRaw($this->createPayload($job, $data), $queue);
     }
 
     /**
@@ -66,11 +76,16 @@ class KafkaQueue extends Queue implements QueueContract
      * @param string $payload
      * @param null $queue
      * @param array $options
-     * @return void
+     * @return mixed
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        $this->producer->produce($payload, $queue, $this->getRandomId());
+        // 获取队列
+        $queue = $this->getQueue($queue);
+        // 生产消息
+        $randomId  = $this->getRandomId();
+        $this->producer->produce($payload, $queue, $randomId);
+        return $randomId;
     }
 
     /**
@@ -94,11 +109,15 @@ class KafkaQueue extends Queue implements QueueContract
      * @param  string  $queue
      * @param  \Rdkafka\Jobs\KafkaJob  $job
      * @param  int  $delay
-     * @return void
+     * @return mixed
      */
     public function release($queue, $job, $delay)
     {
-        $this->producer->produce($job->payload, $queue, $job->key);
+        if ($delay > 0) {
+            return $this->later($delay, $job, $job->payload, $queue);
+        } else {
+            return $this->pushRaw($job->payload, $job);
+        }
     }
 
     /**
@@ -112,6 +131,7 @@ class KafkaQueue extends Queue implements QueueContract
     {
         return array_merge(parent::createPayloadArray($job, $data), [
             'attempts' => 0,
+            'id'       => $this->getRandomId()
         ]);
     }
 
@@ -125,6 +145,7 @@ class KafkaQueue extends Queue implements QueueContract
         if ($message) {
             $payload = json_decode($message->payload, true);
             $payload['attempts']++;
+            $this->randomId = $payload['id'];
             $message->payload = json_encode($payload);
         }
         return $message ?? null;
@@ -137,10 +158,12 @@ class KafkaQueue extends Queue implements QueueContract
      * @param object|string $job
      * @param string $data
      * @param null $queue
+     * @throws \Exception
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
         // The Kafka does not support later
+        throw new \Exception('kafka not support delay until now');
     }
 
     /**
@@ -161,7 +184,15 @@ class KafkaQueue extends Queue implements QueueContract
      */
     protected function getRandomId()
     {
-        return Str::random(32);
+        return $this->randomId ?? Str::random(32);
+    }
+
+    /**
+     * @return \LaravelAliYunKafka\KafkaConsumer
+     */
+    public function getConsumer()
+    {
+        return $this->consumer;
     }
 
 }

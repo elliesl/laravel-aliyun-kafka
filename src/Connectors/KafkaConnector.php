@@ -1,15 +1,15 @@
 <?php
-namespace RdKafka\Connectors;
+namespace LaravelAliYunKafka\Connectors;
 
-use RdKafka\KafkaConsumer;
-use RdKafka\KafKaProducer;
-use Rdkafka\KafkaQueue;
+use LaravelAliYunKafka\KafkaConsumer;
+use LaravelAliYunKafka\KafKaProducer;
+use LaravelAliYunKafka\KafkaQueue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 
 class KafkaConnector implements ConnectorInterface
 {
     /**
-     * Establish a queue connection.
+     * 建立一个连接
      *
      * @param  array  $config
      * @return \Illuminate\Contracts\Queue\Queue

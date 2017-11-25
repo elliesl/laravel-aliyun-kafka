@@ -1,6 +1,6 @@
 <?php
-namespace Rdkafka;
-use Rdkafka\Exception\KafkaMaxPollException;
+namespace LaravelAliYunKafka;
+use LaravelAliYunKafka\Exception\KafkaMaxPollException;
 use RdKafka\Producer;
 class KafKaProducer
 {
@@ -29,18 +29,17 @@ class KafKaProducer
     public function produce($message, $queue, $key = null)
     {
         $loop = 0;
-        $rk = $this->producer();
-        $rk->setLogLevel($this->config['log_level']);
-        $rk->addBrokers($this->config['bootstrap_servers']);
-        $topic = $rk->newTopic($queue);
+        $producer = $this->producer();
+        $topic = $producer->newTopic($queue);
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
+        $producer->poll(0);
 
-        $rk->poll(0);
-        while ($rk->getOutQLen() > 0) { // The out queue contains messages waiting to be sent to, or ackknownledged by, the broker.
+        // 取出还未推送至broker里面的数据
+        while ($producer->getOutQLen() > 0) {
             if ($loop > 100) {
                 throw new KafkaMaxPollException('Kafka producer exec too many times');
             }
-            $rk->poll(50);
+            $producer->poll(50);
             $loop++;
         }
     }
@@ -66,6 +65,8 @@ class KafKaProducer
         if (!isset($this->producer))  {
             $conf = $this->kafkaConfig()->bootstrapConfig($this->config);
             $this->producer = new Producer($conf);
+            $this->producer->setLogLevel($this->config['log_level']); // set log level
+            $this->producer->addBrokers($this->config['bootstrap_servers']); // 初始化服务器
         }
         return $this->producer;
     }

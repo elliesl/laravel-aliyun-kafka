@@ -1,6 +1,6 @@
 <?php
-namespace Rdkafka\Jobs;
-use Rdkafka\KafkaQueue;
+namespace LaravelAliYunKafka\Jobs;
+use LaravelAliYunKafka\KafkaQueue;
 use Illuminate\Container\Container;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Contracts\Queue\Job as JobContract;
@@ -44,6 +44,16 @@ class KafkaJob extends Job implements JobContract
         parent::release($delay);
         $this->delete();
         return $this->kafka->release($this->queue, $this->job, $delay);
+    }
+
+
+    /**
+     * 删除队列消息
+     */
+    public function delete()
+    {
+        parent::delete();
+        $this->kafka->getConsumer()->commitAsync($this->job);
     }
 
     /**

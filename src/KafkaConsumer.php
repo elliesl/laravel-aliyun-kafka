@@ -1,8 +1,8 @@
 <?php
-namespace Rdkafka;
+namespace LaravelAliYunKafka;
 use RdKafka\TopicConf;
 use RdKafka\KafkaConsumer as Consumer;
-use Illuminate\Support\Facades\Log;
+
 class KafkaConsumer
 {
 
@@ -21,7 +21,11 @@ class KafkaConsumer
     protected $config;
 
 
-    protected $topicList = [];
+    /**
+     * 订阅的topic列表
+     * @var array
+     */
+    protected $subscribeTopicList = [];
 
     /**
      * KafKaProducer constructor.
@@ -33,7 +37,7 @@ class KafkaConsumer
     }
 
     /**
-     * 消费消息
+     * 消费kafka消息， 基于 HIGH LEVEL
      *
      * @param $queue
      * @return null
@@ -41,36 +45,33 @@ class KafkaConsumer
      */
     public function consume($queue)
     {
-        $consumer = $this->consumer($queue);
-        echo '开始消费'."\n";
-        $message = $consumer->consume(20 * 1000);
-        echo '结束消费'."\n";
-        switch ($message->err) {
-            case RD_KAFKA_RESP_ERR_NO_ERROR:
-                print_r($message);
-                return $message;
-//                $consumer->commit($message);
-                break;
-            case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                return null;
-                break;
-            case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                return null;
-                break;
-            default:
-                throw new \Exception($message->errstr(), $message->err);
-                break;
+        $consumer = $this->getConsumer($queue);
+        // 消费个1秒
+        if ($message = $consumer->consume(1000)) {
+            switch ($message->err) {
+                case RD_KAFKA_RESP_ERR_NO_ERROR:
+                    $consumer->commit($message);
+                    return $message;
+                    break;
+                case RD_KAFKA_RESP_ERR__PARTITION_EOF:
+                case RD_KAFKA_RESP_ERR__TIMED_OUT:
+                    break;
+                default:
+                    throw new \Exception($message->errstr(), $message->err);
+                    break;
+            }
         }
     }
 
     /**
      * kafka配置
      *
-     * @return KafkaConfig
+     * @return \RdKafka\Conf
      */
-    protected function kafkaConfig()
+    protected function getKafkaConfig()
     {
-        return new KafkaConfig();
+         $kafConfig = new KafkaConfig();
+         return $kafConfig->bootstrapConfig($this->config);
     }
 
 
@@ -80,23 +81,26 @@ class KafkaConsumer
      * @param $queue
      * @return Consumer
      */
-    public function consumer($queue)
+    public function getConsumer($queue)
     {
         if (!isset($this->consumer))  {
-            $conf = $this->kafkaConfig()->bootstrapConfig($this->config);
+
+            // topic conf的设置
             $topicConf = new TopicConf();
-//            $topicConf->set('enable.auto.commit', 'false');
-            $topicConf->set('auto.offset.reset', 'smallest');
+            $topicConf->set('auto.offset.reset', 'smallest'); // 重置位置
+
+            $conf = $this->getKafkaConfig();
             $conf->setDefaultTopicConf($topicConf);
+
+            // 实例化一个Consumer
             $this->consumer = new Consumer($conf);
-            $this->topicList[] = $queue;
+            $this->subscribeTopicList[] = $queue;
             $this->consumer->subscribe([$queue]);
-            Log::info('进来了，厉害');
         }
 
         // 如果在topic中没有则加进去
         if (!in_array($queue, $this->topicList)) {
-            $this->topicList[] = $queue;
+            $this->subscribeTopicList[] = $queue;
             $this->consumer->subscribe([$queue]);
         }
         return $this->consumer;
