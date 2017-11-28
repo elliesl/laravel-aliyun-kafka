@@ -66,7 +66,7 @@ class KafKaProducer
             $conf = $this->kafkaConfig()->bootstrapConfig($this->config);
             $this->producer = new Producer($conf);
             $this->producer->setLogLevel($this->config['log_level']); // set log level
-            $this->producer->addBrokers($this->config['bootstrap_servers']); // 初始化服务器
+            $this->producer->addBrokers($this->config['bootstrap_servers']); // 初始化broker
         }
         return $this->producer;
     }
