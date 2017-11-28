@@ -37,7 +37,8 @@ class KafkaConsumer
     }
 
     /**
-     * 消费kafka消息， 基于 HIGH LEVEL
+     * 消费kafka消息， 基于 HIGH LEVEL Consumer
+     * @link http://orchome.com/10
      *
      * @param $queue
      * @return null
@@ -94,15 +95,25 @@ class KafkaConsumer
 
             // 实例化一个Consumer
             $this->consumer = new Consumer($conf);
-            $this->subscribeTopicList[] = $queue;
-            $this->consumer->subscribe([$queue]);
         }
+        return $this->consumer;
+    }
 
-        // 如果在topic中没有则加进去
-        if (!in_array($queue, $this->topicList)) {
+    /**
+     * 订阅
+     *
+     * @param $queue
+     * @return mixed
+     */
+    public function subscribe($queue)
+    {
+       // 如果在topic中没有则加进去
+        if (!in_array($queue, $this->subscribeTopicList)) {
             $this->subscribeTopicList[] = $queue;
             $this->consumer->subscribe([$queue]);
         }
         return $this->consumer;
     }
+
+
 }

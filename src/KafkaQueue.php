@@ -115,7 +115,7 @@ class KafkaQueue extends Queue implements QueueContract
         if ($delay > 0) {
             return $this->later($delay, $job, $job->payload, $queue);
         } else {
-            return $this->pushRaw($job->payload, $job);
+            return $this->pushRaw($job->payload, $queue);
         }
     }
 
@@ -183,7 +183,8 @@ class KafkaQueue extends Queue implements QueueContract
      */
     protected function getRandomId()
     {
-        return $this->randomId ?? Str::random(32);
+        $this->randomId = $this->randomId ?? Str::random(32);
+        return $this->randomId;
     }
 
     /**
