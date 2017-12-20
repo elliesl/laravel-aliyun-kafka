@@ -126,9 +126,9 @@ class KafkaQueue extends Queue implements QueueContract
      * @param  mixed   $data
      * @return string
      */
-    protected function createPayloadArray($job, $data = '')
+    protected function createPayloadArray($job, $data = '', null)
     {
-        return array_merge(parent::createPayloadArray($job, $data), [
+        return array_merge(parent::createPayloadArray($job, $data, null), [
             'attempts' => 0,
             'id'       => $this->getRandomId()
         ]);
