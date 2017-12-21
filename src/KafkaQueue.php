@@ -7,7 +7,8 @@ use Illuminate\Queue\Queue;
 use LaravelAliYunKafka\KafkaConsumer;
 use LaravelAliYunKafka\KafKaProducer;
 use Illuminate\Support\Str;
-class KafkaQueue extends Queue implements QueueContract
+use Illuminate\Foundation\Application;
+class KafkaQueue extends Queue
 {
 
     /**
@@ -124,11 +125,12 @@ class KafkaQueue extends Queue implements QueueContract
      *
      * @param  string  $job
      * @param  mixed   $data
+     * @param  string  $queue
      * @return string
      */
-    protected function createPayloadArray($job, $data = '', null)
+    protected function createPayloadArray($job, $data = '', $queue = null)
     {
-        return array_merge(parent::createPayloadArray($job, $data, null), [
+        return array_merge(parent::createPayloadArray($job, $data), [
             'attempts' => 0,
             'id'       => $this->getRandomId()
         ]);
