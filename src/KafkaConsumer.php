@@ -38,7 +38,7 @@ class KafkaConsumer
 
     /**
      * 消费kafka消息， 基于 HIGH LEVEL Consumer
-     * @link http://orchome.com/10
+     * @link 了解更多访问 http://orchome.com/10
      *
      * @param $queue
      * @return null
@@ -47,7 +47,9 @@ class KafkaConsumer
     public function consume($queue)
     {
         $consumer = $this->getConsumer($queue);
-        // 消费个1秒
+        // 订阅
+        $this->subscribe($queue);
+        // 消费1秒
         if ($message = $consumer->consume(1000)) {
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:

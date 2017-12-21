@@ -36,7 +36,7 @@ class KafKaProducer
 
         // 取出还未推送至broker里面的数据
         while ($producer->getOutQLen() > 0) {
-            if ($loop > 100) {
+            if ($loop > 1000) {
                 throw new KafkaMaxPollException('Kafka producer exec too many times');
             }
             $producer->poll(50);

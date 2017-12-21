@@ -7,13 +7,6 @@ use LaravelAliYunKafka\Connectors\KafkaConnector;
 use Illuminate\Support\Facades\Queue;
 class LaravelKafkaServiceProvider extends ServiceProvider
 {
-
-    /**
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     /**
      * Bootstrap the application services.
      *

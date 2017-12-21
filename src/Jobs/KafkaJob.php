@@ -48,12 +48,12 @@ class KafkaJob extends Job implements JobContract
 
 
     /**
-     * 删除队列消息
+     * 删除队列消息 fix
      */
     public function delete()
     {
         parent::delete();
-        $this->kafka->getConsumer()->commitAsync($this->job);
+//        $this->kafka->getConsumer()->commitAsync([$this->job]);
     }
 
     /**

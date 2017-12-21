@@ -15,9 +15,9 @@ class KafkaConfig
         $conf->set('api.version.request', 'true');
         $conf->set('sasl.username', $config['sasl_plain_username']);
         $conf->set('sasl.password', $config['sasl_plain_password']);
-        $conf->set('security.protocol', 'SASL_SSL');
+        $conf->set('security.protocol', 'SASL_SSL') ;
         $conf->set('ssl.ca.location', $config['ssl.ca.location']);
-        $conf->set('message.send.max.retries', $config['max.tries']);
+        $conf->set('message.send.max.retries', $config['message.send.max.retries']);
         $conf->set('group.id', $config['consumer_id']);
         $conf->set('enable.auto.commit', 'false');   // 不自动提交
         $conf->set('offset.store.method', 'broker'); // offset保存在broker上
