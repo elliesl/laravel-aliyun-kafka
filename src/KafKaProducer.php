@@ -28,20 +28,8 @@ class KafKaProducer
      */
     public function produce($message, $queue, $key = null)
     {
-        $loop = 0;
-        $producer = $this->producer();
-        $topic = $producer->newTopic($queue);
+        $topic = $this->producer()->newTopic($queue);
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
-        $producer->poll(0);
-
-        // 取出还未推送至broker里面的数据
-        while ($producer->getOutQLen() > 0) {
-            if ($loop > 1000) {
-                throw new KafkaMaxPollException('Kafka producer exec too many times');
-            }
-            $producer->poll(50);
-            $loop++;
-        }
     }
 
     /**
