@@ -15,7 +15,7 @@
     \LaravelAliYunKafka\LaravelKafkaServiceProvider::class
     // config/queue.php
     'kafka' => [
-        'record_msg' => false,
+        'record_msg' => false, // 是否记录日志
         'driver' => 'kafka',
         'sasl_plain_username' => env('KAFKA_SASL_PLAIN_USERNAME', 'YOUR AK'), // 阿里云 ak
         'sasl_plain_password' => env('KAFKA_SASL_PLAIN_PASSWORD', 'YOUR AC'),,// 阿里云 ac后10位
