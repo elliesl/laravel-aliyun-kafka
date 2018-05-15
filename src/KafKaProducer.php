@@ -1,6 +1,7 @@
 <?php
 namespace LaravelAliYunKafka;
 use LaravelAliYunKafka\Exception\KafkaMaxPollException;
+use Illuminate\Support\Facades\Log;
 use RdKafka\Producer;
 class KafKaProducer
 {
@@ -32,9 +33,16 @@ class KafKaProducer
         $topic = $producer->newTopic($queue);
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
         $retry = 0;
-        while ($producer->getOutQLen() > 0 && $retry < 10) {
+        // kafka 重试消息 最大不超过3秒钟
+        while ($producer->getOutQLen() > 0 && $retry < 50) {
+            if ($retry == 45) {
+                Log::info('kafka可能会失败的消息', [
+                    'key' => $key,
+                    'message' => $message
+                ]);
+            }
             ++$retry;
-            $producer->poll(50);
+            $producer->poll(60);
         }
     }
 
