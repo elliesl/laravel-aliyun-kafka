@@ -28,8 +28,14 @@ class KafKaProducer
      */
     public function produce($message, $queue, $key = null)
     {
-        $topic = $this->producer()->newTopic($queue);
+        $producer = $this->producer();
+        $topic = $producer->newTopic($queue);
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message, $key);
+        $retry = 0;
+        while ($producer->getOutQLen() > 0 && $retry < 10) {
+            ++$retry;
+            $producer->poll(50);
+        }
     }
 
     /**
