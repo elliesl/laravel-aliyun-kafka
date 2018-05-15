@@ -1,6 +1,7 @@
 <?php
 namespace LaravelAliYunKafka;
 
+use Illuminate\Support\Facades\Log;
 use LaravelAliYunKafka\Jobs\KafkaJob;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Queue\Queue;
@@ -8,6 +9,7 @@ use LaravelAliYunKafka\KafkaConsumer;
 use LaravelAliYunKafka\KafKaProducer;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Application;
+
 class KafkaQueue extends Queue implements QueueContract
 {
 
@@ -84,6 +86,13 @@ class KafkaQueue extends Queue implements QueueContract
         $queue = $this->getQueue($queue);
         // 生产消息
         $randomId  = $this->getRandomId();
+        if (config('queue.kafka.record_msg')) {
+            Log::info('阿里云kafka日志：', [
+                'payload' => $payload,
+                'queue' => $queue,
+                'randomId' => $randomId
+            ]);
+        }
         $this->producer->produce($payload, $queue, $randomId);
         return $randomId;
     }
@@ -164,8 +173,7 @@ class KafkaQueue extends Queue implements QueueContract
     public function later($delay, $job, $data = '', $queue = null)
     {
         // The Kafka does not support later
-        $this->push($job, $data);
-        // throw new \Exception('kafka not support delay until now');
+        throw new \Exception('kafka not support delay until now');
     }
 
     /**
